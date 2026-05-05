@@ -530,7 +530,7 @@
           </p>
           <div class="hero-ctas">
             <a href="mailto:felipeg400@gmail.com" class="btn btn-primary" style="pointer-events:auto;cursor:pointer;">get in touch</a>
-            <button class="btn btn-ghost">view LinkedIn</button>
+            <a href="https://www.linkedin.com/in/felipegiaconiastabile/" target="_blank" class="btn btn-ghost" style="pointer-events:auto;cursor:pointer;">view LinkedIn</a>
           </div>
           <div class="hero-footnote">Vienna, Austria · open to remote</div>
         </div>
@@ -721,10 +721,10 @@
           <i class="ph ph-phone"></i>
           +39 366 2541258
         </div>
-        <div class="cta-contact-item">
+        <a href="https://www.linkedin.com/in/felipegiaconiastabile/" target="_blank" class="cta-contact-item" style="pointer-events:auto;cursor:pointer;text-decoration:none;">
           <i class="ph ph-linkedin-logo"></i>
           felipegiaconiastabile
-        </div>
+        </a>
       </div>
     </div>
   </section>
@@ -755,7 +755,7 @@
       <div class="footer-col">
         <div class="footer-col-label">Contact</div>
         <a href="#">felipegiaconia@hotmail.com</a>
-        <a href="#">LinkedIn</a>
+        <a href="https://www.linkedin.com/in/felipegiaconiastabile/" target="_blank" style="pointer-events:auto;cursor:pointer;">LinkedIn</a>
         <a href="#">+39 366 2541258</a>
       </div>
     </div>
@@ -781,7 +781,7 @@
       btn.classList.add('active');
     });
   });
-  document.querySelectorAll('a').forEach(a => {
+  document.querySelectorAll('a[href="#"]').forEach(a => {
     a.addEventListener('click', e => e.preventDefault());
   });
 </script>
