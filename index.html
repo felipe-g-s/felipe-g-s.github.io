@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -144,8 +144,42 @@
     font-family: var(--font-sans); font-size: 14px; font-weight: 500;
     border: 1px solid transparent; cursor: pointer; transition: all 220ms ease; line-height: 1;
   }
-  .btn-primary { background: var(--text1); color: var(--bg); }
-  .btn-primary:hover { transform: translateY(-1px); background: var(--neutral-700); }
+  .btn-primary {
+    background: #111;
+    color: #fff;
+    position: relative;
+    z-index: 0;
+  }
+  .btn-primary::before {
+    content: '';
+    background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
+    position: absolute;
+    top: -2px; left: -2px;
+    background-size: 400%;
+    z-index: -1;
+    filter: blur(5px);
+    width: calc(100% + 4px);
+    height: calc(100% + 4px);
+    animation: glowing 20s linear infinite;
+    opacity: 0;
+    transition: opacity .3s ease-in-out;
+    border-radius: var(--r-pill);
+  }
+  .btn-primary:hover::before { opacity: 1; }
+  .btn-primary::after {
+    z-index: -1;
+    content: '';
+    position: absolute;
+    width: 100%; height: 100%;
+    background: #111;
+    left: 0; top: 0;
+    border-radius: var(--r-pill);
+  }
+  @keyframes glowing {
+    0%   { background-position: 0 0; }
+    50%  { background-position: 400% 0; }
+    100% { background-position: 0 0; }
+  }
   .btn-ghost { background: transparent; color: var(--text2); border-color: var(--border-vis); }
   .btn-ghost:hover { color: var(--text1); border-color: var(--text3); }
   .btn-sm { padding: 9px 16px; font-size: 13px; }
@@ -411,43 +445,14 @@
   .cta-contact-item i { color: var(--brand-400); font-size: 14px; }
 
   /* ── FOOTER ── */
-  .lp-footer { border-top: 1px solid var(--border); padding: var(--sp-3xl) 0 var(--sp-2xl); }
-  .lp-footer .container {
-    display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--sp-xl);
-  }
-  .footer-brand {
-    font-family: var(--font-display); font-style: italic; font-size: 22px;
-    font-weight: 400; color: var(--text1); letter-spacing: -0.01em;
-  }
-  .footer-tag { font-size: 14px; color: var(--text3); max-width: 280px; margin-top: var(--sp-sm); line-height: 1.55; }
-  .footer-cols { display: flex; gap: var(--sp-4xl); }
-  .footer-col { display: flex; flex-direction: column; gap: var(--sp-sm); }
-  .footer-col-label {
-    font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
-    color: var(--accent); margin-bottom: var(--sp-xs);
-  }
-  .footer-col a, .footer-col span { font-size: 13px; color: var(--text2); line-height: 1.6; }
+  .lp-footer { border-top: 1px solid var(--border); }
   .footer-bottom {
-    max-width: 1120px; margin: var(--sp-2xl) auto 0;
-    padding: var(--sp-lg) var(--sp-2xl) 0; border-top: 1px solid var(--border);
-    display: flex; justify-content: space-between; font-size: 12px; color: var(--text4); letter-spacing: 0.02em;
+    max-width: 1120px; margin: 0 auto;
+    padding: var(--sp-lg) var(--sp-2xl);
+    display: flex; justify-content: center;
+    font-size: 12px; color: var(--text4); letter-spacing: 0.02em;
   }
 
-  /* ── THEME BAR ── */
-  .theme-bar {
-    position: fixed; bottom: var(--sp-lg); left: 50%; transform: translateX(-50%);
-    display: flex; gap: 4px; padding: 4px;
-    background: color-mix(in srgb, var(--surface1) 85%, transparent);
-    backdrop-filter: blur(20px) saturate(140%); -webkit-backdrop-filter: blur(20px) saturate(140%);
-    border: 1px solid var(--border-vis); border-radius: var(--r-pill); z-index: 1000;
-    box-shadow: 0 2px 20px rgba(50,47,41,0.06);
-  }
-  .theme-bar button {
-    padding: 8px 16px; border: none; background: transparent; color: var(--text3);
-    font-family: var(--font-sans); font-size: 12px; font-weight: 500;
-    border-radius: var(--r-pill); cursor: pointer; transition: all 200ms ease;
-  }
-  .theme-bar button.active { background: var(--text1); color: var(--bg); }
 
   /* ── DARK MODE: PAINTERLY FIELD ── */
   [data-theme="dark"] .lp-hero { background: var(--bg); }
@@ -524,15 +529,14 @@
       <div class="hero-content-wrap">
         <div class="hero-content">
           <div class="hero-wordmark">Felipe</div>
-          <h1>AI × Design. Making AI useful, usable, and impactful.</h1>
+          <h1>Designing the AI-native interface<br>0-to-1 product & brand.</h1>
           <p class="sub">
-            Conversational AI Designer and Founder Employee at Pwned Labs. I shape AI-powered products from the first idea through the last interaction — where intelligence meets the people who need it.
+            Founding Designer at Pwned Labs. I build products and brands from zero to one — visual identity, interaction patterns, voice, and the design language the whole team works against.
           </p>
           <div class="hero-ctas">
-            <a href="mailto:felipeg400@gmail.com" class="btn btn-primary" style="pointer-events:auto;cursor:pointer;">get in touch</a>
+            <a href="mailto:felipeg400@gmail.com" class="btn btn-ghost" style="pointer-events:auto;cursor:pointer;">get in touch</a>
             <a href="https://www.linkedin.com/in/felipegiaconiastabile/" target="_blank" class="btn btn-ghost" style="pointer-events:auto;cursor:pointer;">view LinkedIn</a>
           </div>
-          <div class="hero-footnote">Vienna, Austria · open to remote</div>
         </div>
       </div>
     </div>
@@ -542,9 +546,9 @@
   <section class="lp-intro">
     <div class="container">
       <div class="intro-eyebrow">what I do</div>
-      <h2 class="intro-heading">I design the conversations that happen <em>between people and machines</em> — and make sure neither side has to shout.</h2>
+      <h2 class="intro-heading">I take products from nothing to something — <em>identity, product, and the space between them</em> fully owned.</h2>
       <p class="intro-body">
-        For over a decade I've worked at the intersection of UX, brand, and emerging technology. Today that means designing AI assistants, chatbots, and conversational interfaces that don't just function — they feel considered. The best AI experience is one the user forgets is AI at all.
+        For over a decade I've worked at the intersection of brand, UX, and emerging technology. Today that means being the first designer in the room — defining what the product is, what it looks like, how it speaks, and how every surface holds together. Generative UX isn't a buzzword here; it's the actual work.
       </p>
     </div>
   </section>
@@ -555,11 +559,11 @@
       <div class="feature-row">
         <div class="feature-copy">
           <div class="kicker">now</div>
-          <h3>Shaping AI products from the inside, <em>as a founder.</em></h3>
+          <h3>First design hire. Built product and brand <em>from zero to one.</em></h3>
           <p>
-            At Pwned Labs I'm a Founder Employee — which means I'm not handed a brief, I write it. I work across the full design arc of AI-powered solutions: from defining what the product should feel like, to the precise wording of a system prompt, to the final interaction flow.
+            Joined Pwned Labs as the founding designer and defined the visual identity, voice, interaction patterns, and design language now used across +50 surfaces. Set the brand direction the rest of the team works against — principles, patterns, voice guidelines — and partnered directly with the founder on product strategy through pricing, onboarding, and in-product narrative.
           </p>
-          <div class="note"><i class="ph ph-lightning"></i> Dubai, UAE · June 2023 – present · 2 yr 11 mo</div>
+          <div class="note"><i class="ph ph-lightning"></i> Dubai, UAE · June 2023 – present · 3 years</div>
         </div>
 
         <div class="feature-visual">
@@ -567,7 +571,7 @@
             <div class="role-card-header">
               <div>
                 <div class="role-card-company">Pwned Labs</div>
-                <div style="font-size:13px;color:var(--text3);margin-top:3px;">AI × Design | Conversational AI Designer</div>
+                <div style="font-size:13px;color:var(--text3);margin-top:3px;">Founding Designer — 0-to-1 product & brand — Generative UX</div>
               </div>
               <div class="role-card-tenure">Jun 2023<br>Present</div>
             </div>
@@ -575,14 +579,14 @@
               <div class="role-card-badge"><span class="dot"></span> active</div>
             </div>
             <div class="role-card-body">
-              Making AI useful, usable, and impactful — from the first whiteboard sketch to the last edge case in the prompt library.
+              Visual identity, voice, interaction patterns, and design language — built from nothing, now running across +50 surfaces.
             </div>
             <div class="role-card-tags">
-              <span class="role-tag">Conversational UI</span>
-              <span class="role-tag">AI Design</span>
-              <span class="role-tag">Chatbots</span>
-              <span class="role-tag rose">Founder Employee</span>
-              <span class="role-tag">Assistants</span>
+              <span class="role-tag">Visual Identity</span>
+              <span class="role-tag">Generative UX</span>
+              <span class="role-tag">0-to-1</span>
+              <span class="role-tag rose">Founding Designer</span>
+              <span class="role-tag">Brand Direction</span>
             </div>
           </div>
         </div>
@@ -596,9 +600,9 @@
       <div class="feature-row reverse">
         <div class="feature-copy">
           <div class="kicker">craft</div>
-          <h3>UX strategy and vision, <em>from discovery through delivery.</em></h3>
+          <h3>Cross-functional alignment turned into <em>shipped work, not just meetings.</em></h3>
           <p>
-            Four years at INE shaped how I think about cross-functional work — sitting between product, engineering, and marketing until the seams disappear. Before that, a consulting chapter taught me how to hold a client's business problem in one hand and a user's confusion in the other.
+            Four years at INE owning UI across marketing, education, events, and social — including the visual brand refresh for 2020/21 that drove Black Hat globally. Before that, six months consulting directly with founders, turning complex SaaS problems into user-centered products from discovery through delivery.
           </p>
           <div class="note"><i class="ph ph-users"></i> INE · Raleigh, NC · 2019 – 2023</div>
         </div>
@@ -611,32 +615,32 @@
             </div>
             <div class="skill-rows">
               <div class="skill-row">
-                <div class="label">Conversational UI</div>
-                <div class="bar-track"><div class="bar-fill" style="width: 96%;"></div></div>
+                <div class="label">0-to-1 Design</div>
+                <div class="bar-track"><div class="bar-fill" style="width: 100%;"></div></div>
                 <div class="mark">●●●●●</div>
               </div>
               <div class="skill-row">
-                <div class="label">AI Product Design</div>
-                <div class="bar-track"><div class="bar-fill" style="width: 92%;"></div></div>
+                <div class="label">Generative UX</div>
+                <div class="bar-track"><div class="bar-fill" style="width: 100%;"></div></div>
                 <div class="mark">●●●●●</div>
               </div>
               <div class="skill-row">
-                <div class="label">UX Research</div>
-                <div class="bar-track"><div class="bar-fill" style="width: 85%;"></div></div>
-                <div class="mark">●●●●○</div>
+                <div class="label">UX Strategy</div>
+                <div class="bar-track"><div class="bar-fill" style="width: 100%;"></div></div>
+                <div class="mark">●●●●●</div>
               </div>
               <div class="skill-row">
-                <div class="label">Brand Design</div>
-                <div class="bar-track"><div class="bar-fill" style="width: 80%;"></div></div>
-                <div class="mark">●●●●○</div>
+                <div class="label">Visual Identity</div>
+                <div class="bar-track"><div class="bar-fill" style="width: 100%;"></div></div>
+                <div class="mark">●●●●●</div>
               </div>
               <div class="skill-row">
-                <div class="label">Design Systems</div>
-                <div class="bar-track"><div class="bar-fill" style="width: 74%;"></div></div>
-                <div class="mark">●●●●○</div>
+                <div class="label">Product & Brand</div>
+                <div class="bar-track"><div class="bar-fill" style="width: 100%;"></div></div>
+                <div class="mark">●●●●●</div>
               </div>
             </div>
-            <div class="skills-card-footer">ten years of building, one year of designing for machines.</div>
+            <div class="skills-card-footer">fourteen years of building — the last three, for AI-native products.</div>
           </div>
         </div>
       </div>
@@ -647,7 +651,7 @@
   <section class="lp-quote">
     <div class="container">
       <blockquote>
-        The best interface for AI is the one that makes the AI invisible — where the user just gets what they needed and moves on, never stopping to wonder how.
+        The most useful thing a founding designer can do is make the product feel inevitable — like it could never have looked any other way.
         <cite>— Felipe Giaconia Stabile</cite>
       </blockquote>
     </div>
@@ -661,7 +665,7 @@
           <div class="kicker">career</div>
           <h3>Fourteen years building for the web <em>before the AI inflection point.</em></h3>
           <p>
-            The foundation was laid at NeetBlogs and HACEMOS — two properties that between them reached nearly three million users a month. That scale, that early, teaches you that design decisions aren't aesthetic choices — they're operational ones.
+            The foundation was laid at NeetBlogs and HACEMOS — designing visual identity, content systems, and brand strategy across 90 sites reaching 2.7M+ monthly users. That scale, that early, teaches you that design decisions aren't aesthetic choices — they're operational ones.
           </p>
           <div class="note"><i class="ph ph-calendar"></i> La Plata → Raleigh → Dubai → Vienna</div>
         </div>
@@ -710,22 +714,8 @@
   <section class="lp-cta-block">
     <div class="container">
       <h2><em>Let's make something</em> useful together.</h2>
-      <p>I'm open to conversations about AI product design, conversational interfaces, and design leadership. Vienna-based, remote-friendly.</p>
-      <a href="mailto:felipeg400@gmail.com" class="btn btn-primary" style="pointer-events:auto;cursor:pointer;">get in touch</a>
-      <div class="cta-contact-row">
-        <div class="cta-contact-item">
-          <i class="ph ph-envelope"></i>
-          felipegiaconia@hotmail.com
-        </div>
-        <div class="cta-contact-item">
-          <i class="ph ph-phone"></i>
-          +39 366 2541258
-        </div>
-        <a href="https://www.linkedin.com/in/felipegiaconiastabile/" target="_blank" class="cta-contact-item" style="pointer-events:auto;cursor:pointer;text-decoration:none;">
-          <i class="ph ph-linkedin-logo"></i>
-          felipegiaconiastabile
-        </a>
-      </div>
+      <p>I'm open to conversations about founding design roles, 0-to-1 product and brand, and generative UX.</p>
+      <a href="mailto:felipeg400@gmail.com" class="btn btn-ghost" style="pointer-events:auto;cursor:pointer;">get in touch</a>
     </div>
   </section>
 
@@ -733,54 +723,12 @@
 
 <!-- ── FOOTER ── -->
 <footer class="lp-footer">
-  <div class="container">
-    <div>
-      <div class="footer-brand">Felipe</div>
-      <p class="footer-tag">AI × Design. Conversational AI Designer. Founder Employee at Pwned Labs.</p>
-    </div>
-    <div class="footer-cols">
-      <div class="footer-col">
-        <div class="footer-col-label">Skills</div>
-        <span>Conversational UI (CUI)</span>
-        <span>Brand Design</span>
-        <span>UX Research</span>
-        <span>AI Product Design</span>
-      </div>
-      <div class="footer-col">
-        <div class="footer-col-label">Education</div>
-        <span>Universidad Nacional de La Plata</span>
-        <span>Graphic Design · 2005–2010</span>
-        <span style="margin-top:6px;color:var(--text4);font-size:12px;">+ 3 certifications</span>
-      </div>
-      <div class="footer-col">
-        <div class="footer-col-label">Contact</div>
-        <a href="#">felipegiaconia@hotmail.com</a>
-        <a href="https://www.linkedin.com/in/felipegiaconiastabile/" target="_blank" style="pointer-events:auto;cursor:pointer;">LinkedIn</a>
-        <a href="#">+39 366 2541258</a>
-      </div>
-    </div>
-  </div>
   <div class="footer-bottom">
     <span>FELIPE GIACONIA STABILE · 2026</span>
-    <span>VIENNA, AUSTRIA · OPEN TO REMOTE</span>
   </div>
 </footer>
 
-<!-- Theme toggle -->
-<div class="theme-bar">
-  <button class="active" data-theme-btn="light">Light</button>
-  <button data-theme-btn="dark">Dark</button>
-</div>
-
 <script>
-  document.querySelectorAll('.theme-bar button').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const theme = btn.dataset.themeBtn;
-      document.documentElement.setAttribute('data-theme', theme);
-      document.querySelectorAll('.theme-bar button').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-    });
-  });
   document.querySelectorAll('a[href="#"]').forEach(a => {
     a.addEventListener('click', e => e.preventDefault());
   });
