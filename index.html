@@ -180,15 +180,23 @@
     50%  { background-position: 400% 0; }
     100% { background-position: 0 0; }
   }
-  .btn-ghost { background: transparent; color: var(--text2); border-color: var(--border-vis); }
-  .btn-ghost:hover { color: var(--text1); border-color: var(--text3); }
+  .btn-ghost { background: transparent; color: var(--neutral-300); border-color: var(--neutral-500); }
+  .btn-ghost:hover { color: var(--neutral-50); border-color: var(--neutral-300); }
   .btn-sm { padding: 9px 16px; font-size: 13px; }
 
   /* ── HERO STAGE — painterly-no-hero ── */
   .lp-hero {
     position: relative; overflow: hidden; min-height: 100vh;
     padding: var(--sp-5xl) 0 var(--sp-4xl);
-    display: flex; align-items: center; background: var(--bg);
+    display: flex; align-items: center;
+    background: linear-gradient(-45deg, #14110E, #30412C, #8E3F2C, #1D2919);
+    background-size: 400% 400%;
+    animation: heroGradient 15s ease infinite;
+  }
+  @keyframes heroGradient {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
   }
   .bg-painterly {
     position: absolute; inset: 0; z-index: 1;
@@ -455,7 +463,7 @@
 
 
   /* ── DARK MODE: PAINTERLY FIELD ── */
-  [data-theme="dark"] .lp-hero { background: var(--bg); }
+  /* dark mode hero inherits the animated gradient */
   [data-theme="dark"] .bg-painterly .wash { mix-blend-mode: screen; }
   [data-theme="dark"] .bg-painterly .w1 {
     background: radial-gradient(ellipse at 50% 50%,
@@ -503,12 +511,6 @@
       <span class="lp-brand-mark">fg</span>
       Felipe
     </a>
-    <nav class="lp-nav">
-      <a href="#">work</a>
-      <a href="#">craft</a>
-      <a href="#">career</a>
-      <a href="#">contact</a>
-    </nav>
     <a href="mailto:felipeg400@gmail.com" class="btn btn-ghost btn-sm" style="pointer-events:auto;cursor:pointer;">get in touch</a>
   </div>
 </header>
