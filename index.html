@@ -8,7 +8,22 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+
+<!-- Fonts: only the 4 display weights actually used (was 6). display=swap avoids FOIT.
+     Loaded non-render-blocking via preload→stylesheet so above-the-fold CSS paints first. -->
+<link rel="preload" as="style"
+  href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+  onload="this.onload=null;this.rel='stylesheet'">
+<noscript>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+</noscript>
+
+<!-- Third-party libs: deferred so they download in parallel during parse and never block render.
+     defer preserves execution order; init runs on DOMContentLoaded (after these have executed). -->
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 
 <style>
   :root {
@@ -123,6 +138,12 @@
   /* ── HERO ── */
   .hero { position: relative; min-height: 100svh; display: flex; align-items: flex-end; overflow: hidden; }
   #gl { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; display: block; }
+  /* network/perf fallback — when WebGL is skipped (slow net, low memory, reduced-motion, no GL) */
+  .hero.no-gl { background:
+    radial-gradient(120% 90% at 18% 8%, rgba(212,255,63,0.12), transparent 55%),
+    radial-gradient(100% 80% at 92% 28%, rgba(255,90,54,0.10), transparent 55%),
+    linear-gradient(180deg, #0e120a 0%, var(--ink) 70%); }
+  .hero.no-gl #gl { display: none; }
   .hero::before {
     content:""; position:absolute; inset:0; z-index:1; pointer-events:none;
     background:
@@ -248,6 +269,7 @@
   .stat .num {
     font-family: var(--font-display); font-weight: 700; font-size: clamp(40px, 5.4vw, 76px);
     line-height: 1; letter-spacing: -0.04em; color: var(--paper);
+    font-variant-numeric: tabular-nums; /* stable digit width while counters animate → no CLS */
   }
   .stat .num .u { color: var(--lime); }
   .stat .lab { margin-top: 14px; font-size: 13.5px; color: var(--paper-mute); line-height: 1.45; max-width: 22ch; }
@@ -540,21 +562,46 @@
   </div>
 </footer>
 
-<!-- ── LIBS ── -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-
+<!-- Libraries are deferred in <head>; this app script runs on DOMContentLoaded once they're ready. -->
 <script>
+document.addEventListener('DOMContentLoaded', function () {
+'use strict';
+
+/* ====================================================================
+   SHARED — perf budget + one throttled scroll dispatcher
+   ==================================================================== */
+const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const conn   = navigator.connection || navigator.webkitConnection || navigator.mozConnection || {};
+const lowNet = !!conn.saveData || /(^|\b)(slow-2g|2g)$/.test(conn.effectiveType || '');
+const lowMem = (navigator.deviceMemory || 8) < 4;
+const hasGL  = (function () { try { return !!document.createElement('canvas').getContext('webgl'); } catch (e) { return false; } })();
+const lite   = reduce || lowNet || lowMem || !hasGL;   // degrade gracefully on slow networks / weak devices
+
+const debounce = (fn, ms) => { let t; return function () { clearTimeout(t); t = setTimeout(fn, ms); }; };
+
+/* every scroll consumer subscribes here → a single passive, rAF-batched handler (no layout thrash) */
+const scrollSubs = [];
+let scrolling = false;
+window.addEventListener('scroll', function () {
+  if (scrolling) return;
+  scrolling = true;
+  requestAnimationFrame(function () {
+    const y = window.scrollY || window.pageYOffset;
+    for (let i = 0; i < scrollSubs.length; i++) scrollSubs[i](y);
+    scrolling = false;
+  });
+}, { passive: true });
+
 /* ====================================================================
    THREE.JS — flowing "neural field" shader hero
    ==================================================================== */
 (function () {
   const canvas = document.getElementById('gl');
-  if (!window.THREE || !canvas) return;
+  const hero = document.querySelector('.hero');
+  if (lite || !window.THREE || !canvas) { if (hero) hero.classList.add('no-gl'); return; }
 
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: 'high-performance' });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
   const scene = new THREE.Scene();
   const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
 
@@ -651,31 +698,40 @@
   const points = new THREE.Points(pg, pm);
   scene.add(points);
 
+  // Layout reads (clientWidth/offsetHeight) happen ONLY here — on init + debounced resize,
+  // never inside the render loop. heroH is cached so the scroll handler stays read-free.
+  let heroH = hero.offsetHeight || window.innerHeight;
   function resize() {
     const w = canvas.clientWidth, h = canvas.clientHeight;
     if (canvas.width !== w || canvas.height !== h) renderer.setSize(w, h, false);
     uniforms.u_res.value.set(w * renderer.getPixelRatio(), h * renderer.getPixelRatio());
+    heroH = hero.offsetHeight || window.innerHeight;
   }
+  window.addEventListener('resize', debounce(resize, 150));
 
   let tMouse = { x: 0.5, y: 0.5 };
   window.addEventListener('pointermove', (e) => {
     tMouse.x = e.clientX / window.innerWidth;
     tMouse.y = 1 - e.clientY / window.innerHeight;
-  });
-  window.addEventListener('scroll', () => {
-    const hero = document.querySelector('.hero');
-    const p = Math.min(1, Math.max(0, window.scrollY / (hero.offsetHeight || 1)));
-    uniforms.u_scroll.value = p;
+  }, { passive: true });
+  scrollSubs.push(function (y) {
+    uniforms.u_scroll.value = Math.min(1, Math.max(0, y / heroH));
   });
 
   const clock = new THREE.Clock();
-  let running = true;
-  document.addEventListener('visibilitychange', () => { running = !document.hidden; });
+  let onScreen = true, awake = true, running = false;
 
-  function loop() {
-    requestAnimationFrame(loop);
-    if (!running) return;
-    resize();
+  // Stop rendering entirely when the hero is scrolled away or the tab is hidden →
+  // frees the GPU/main thread for the rest of the page (keeps per-frame budget < 16ms).
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function (es) { onScreen = es[0].isIntersecting; kick(); }, { threshold: 0 })
+      .observe(hero);
+  }
+  document.addEventListener('visibilitychange', function () { awake = !document.hidden; kick(); });
+
+  function kick() { if (!running && onScreen && awake) { running = true; requestAnimationFrame(frame); } }
+  function frame() {
+    if (!onScreen || !awake) { running = false; return; }   // self-suspends; kick() resumes
     uniforms.u_time.value = clock.getElapsedTime();
     uniforms.u_mouse.value.x += (tMouse.x - uniforms.u_mouse.value.x) * 0.05;
     uniforms.u_mouse.value.y += (tMouse.y - uniforms.u_mouse.value.y) * 0.05;
@@ -683,9 +739,10 @@
     points.position.x = (uniforms.u_mouse.value.x - 0.5) * 0.15;
     points.position.y = (uniforms.u_mouse.value.y - 0.5) * 0.15;
     renderer.render(scene, camera);
+    requestAnimationFrame(frame);
   }
   resize();
-  loop();
+  kick();
 })();
 
 /* ====================================================================
@@ -694,7 +751,6 @@
 (function () {
   if (!window.gsap) return;
   gsap.registerPlugin(ScrollTrigger);
-  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // ── hero intro ──
   if (!reduce) {
@@ -705,17 +761,21 @@
       .to('.hero-sub, .hero-ctas, .pill, .hero-meta', { opacity: 1, y: 0, duration: 0.8, stagger: 0.08 }, '-=0.55');
   }
 
-  // ── generic reveals ──
-  gsap.utils.toArray('.reveal').forEach((el) => {
-    gsap.to(el, {
-      opacity: 1, y: 0, duration: 0.9, ease: 'power3.out',
-      scrollTrigger: { trigger: el, start: 'top 86%' }
+  // ── generic reveals (instant, no translate, under reduced-motion) ──
+  if (reduce) {
+    gsap.set('.reveal', { opacity: 1, y: 0 });
+  } else {
+    gsap.utils.toArray('.reveal').forEach((el) => {
+      gsap.to(el, {
+        opacity: 1, y: 0, duration: 0.9, ease: 'power3.out',
+        scrollTrigger: { trigger: el, start: 'top 86%' }
+      });
     });
-  });
+  }
 
-  // ── marquee ──
+  // ── marquee (skipped under reduced-motion) ──
   const mq = document.getElementById('mq');
-  if (mq) {
+  if (mq && !reduce) {
     let mqX = gsap.to(mq, { xPercent: -50, repeat: -1, duration: 26, ease: 'none' });
     ScrollTrigger.create({
       onUpdate: (self) => { gsap.to(mqX, { timeScale: 1 + Math.min(3, Math.abs(self.getVelocity()) / 400), duration: 0.4 }); }
@@ -743,16 +803,21 @@
     };
     walk(mt);
     const words = mt.querySelectorAll('.w');
-    gsap.to(words, {
-      opacity: 1, stagger: 0.4, ease: 'none',
-      scrollTrigger: { trigger: mt, start: 'top 75%', end: 'bottom 60%', scrub: 0.5 }
-    });
+    if (reduce) {
+      gsap.set(words, { opacity: 1 });
+    } else {
+      gsap.to(words, {
+        opacity: 1, stagger: 0.4, ease: 'none',
+        scrollTrigger: { trigger: mt, start: 'top 75%', end: 'bottom 60%', scrub: 0.5 }
+      });
+    }
   }
 
-  // ── animated counters ──
+  // ── animated counters (set final value instantly under reduced-motion) ──
   gsap.utils.toArray('[data-count]').forEach((el) => {
     const target = parseFloat(el.getAttribute('data-count'));
     const dec = target % 1 !== 0 ? 1 : 0;
+    if (reduce) { el.textContent = target.toFixed(dec); return; }
     const obj = { v: 0 };
     ScrollTrigger.create({
       trigger: el, start: 'top 88%', once: true,
@@ -764,26 +829,27 @@
   });
 
   // ── timeline rows stagger ──
-  gsap.from('.tl-row', {
+  if (!reduce) gsap.from('.tl-row', {
     opacity: 0, y: 30, duration: 0.7, stagger: 0.08, ease: 'power3.out',
     scrollTrigger: { trigger: '.tl', start: 'top 80%' }
   });
 })();
 
 /* ====================================================================
-   HEADER show/hide
+   HEADER show/hide — subscribes to the shared scroll dispatcher (no own listener)
    ==================================================================== */
 (function () {
   const hdr = document.getElementById('hdr');
   let last = 0;
-  window.addEventListener('scroll', () => {
-    const y = window.scrollY;
+  scrollSubs.push(function (y) {
     hdr.classList.toggle('scrolled', y > 40);
     if (y > last && y > 400) hdr.classList.add('hide');
     else hdr.classList.remove('hide');
     last = y;
-  }, { passive: true });
+  });
 })();
+
+}); /* end DOMContentLoaded */
 </script>
 </body>
 </html>
