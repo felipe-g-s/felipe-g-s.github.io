@@ -377,15 +377,7 @@
     </div>
   </div>
 </section>
-
-<!-- ── MARQUEE ── -->
-<div class="marquee" aria-hidden="true">
-  <div class="marquee-track" id="mq">
-    <span>AI-ASSISTED DESIGN</span><span>GENERATIVE UX</span><span>0-TO-1 PRODUCT</span><span>VIBE-CODED PROTOTYPES</span><span>VISUAL IDENTITY</span><span>DESIGN SYSTEMS</span><span>AI CONSULTING</span>
-    <span>AI-ASSISTED DESIGN</span><span>GENERATIVE UX</span><span>0-TO-1 PRODUCT</span><span>VIBE-CODED PROTOTYPES</span><span>VISUAL IDENTITY</span><span>DESIGN SYSTEMS</span><span>AI CONSULTING</span>
-  </div>
-</div>
-
+     
 <!-- ── MANIFESTO ── -->
 <section class="manifesto wrap">
   <p class="big" id="manifesto-text">
@@ -545,8 +537,6 @@
 <footer>
   <div class="wrap ft-inner">
     <span>FELIPE GIACONIA STABILE © 2026</span>
-    <span class="dots"><i style="background:var(--lime)"></i><i style="background:var(--coral)"></i><i style="background:var(--azure)"></i><i style="background:var(--plum)"></i></span>
-    <span>DESIGNED &amp; BUILT WITH AI IN THE LOOP</span>
   </div>
 </footer>
 
@@ -758,15 +748,6 @@ window.addEventListener('scroll', function () {
         opacity: 1, y: 0, duration: 0.9, ease: 'power3.out',
         scrollTrigger: { trigger: el, start: 'top 86%' }
       });
-    });
-  }
-
-  // ── marquee (skipped under reduced-motion) ──
-  const mq = document.getElementById('mq');
-  if (mq && !reduce) {
-    let mqX = gsap.to(mq, { xPercent: -50, repeat: -1, duration: 26, ease: 'none' });
-    ScrollTrigger.create({
-      onUpdate: (self) => { gsap.to(mqX, { timeScale: 1 + Math.min(3, Math.abs(self.getVelocity()) / 400), duration: 0.4 }); }
     });
   }
 
