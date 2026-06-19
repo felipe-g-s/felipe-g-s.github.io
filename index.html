@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Felipe Giaconia Stabile — AI-First Product Designer</title>
 <meta name="description" content="AI-first product designer. AI-assisted design & development services and consulting. From zero to one — product, brand, and the generative systems between them.">
 
@@ -46,6 +46,20 @@
     --r-lg: 26px;
     --r-pill: 999px;
 
+    /* 4/8pt spacing scale */
+    --s-1: 4px;  --s-2: 8px;  --s-3: 12px; --s-4: 16px;
+    --s-6: 24px; --s-8: 32px; --s-12: 48px; --s-16: 64px;
+
+    /* z-index scale — single source of truth */
+    --z-base: 0;      /* webgl canvas        */
+    --z-raised: 10;   /* hero content        */
+    --z-overlay: 40;  /* in-section glows etc */
+    --z-header: 100;  /* fixed nav           */
+    --z-grain: 9998;  /* full-screen grain   */
+
+    /* responsive page gutter (overridden per breakpoint) */
+    --gutter: 40px;
+
     --font-display: 'Bricolage Grotesque', 'Times New Roman', serif;
     --font-sans: 'Inter', -apple-system, system-ui, sans-serif;
     --font-mono: 'JetBrains Mono', ui-monospace, monospace;
@@ -71,19 +85,24 @@
   p { margin: 0; }
   img { max-width: 100%; display: block; }
 
-  .wrap { max-width: 1280px; margin: 0 auto; padding: 0 40px; }
+  .wrap {
+    max-width: 1280px; margin: 0 auto;
+    padding-left: max(var(--gutter), env(safe-area-inset-left));
+    padding-right: max(var(--gutter), env(safe-area-inset-right));
+  }
   .reveal { opacity: 0; transform: translateY(40px); }
 
   /* ── NOISE / GRAIN OVERLAY ── */
   body::after {
-    content: ""; position: fixed; inset: 0; z-index: 9998; pointer-events: none;
+    content: ""; position: fixed; inset: 0; z-index: var(--z-grain); pointer-events: none;
     opacity: 0.04; mix-blend-mode: overlay;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 
   /* ── HEADER ── */
   .hdr {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+    position: fixed; top: 0; left: 0; right: 0; z-index: var(--z-header);
+    padding-top: env(safe-area-inset-top);
     transition: transform .5s var(--ease), background .4s ease, border-color .4s ease;
     border-bottom: 1px solid transparent;
   }
@@ -94,7 +113,8 @@
   }
   .hdr.hide { transform: translateY(-110%); }
   .hdr-inner {
-    max-width: 1280px; margin: 0 auto; padding: 18px 40px;
+    max-width: 1280px; margin: 0 auto;
+    padding: 16px max(var(--gutter), env(safe-area-inset-left));
     display: flex; align-items: center; justify-content: space-between;
   }
   .brand {
@@ -120,12 +140,14 @@
   .nav a.lnk:hover::after { width: 100%; }
 
   .btn {
-    display: inline-flex; align-items: center; gap: 9px; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center; gap: 9px; cursor: pointer;
     font-family: var(--font-sans); font-weight: 600; font-size: 14px;
-    padding: 12px 22px; border-radius: var(--r-pill); border: 1px solid transparent;
+    min-height: 44px; padding: 12px 22px; border-radius: var(--r-pill); border: 1px solid transparent;
     transition: transform .3s var(--ease), background .3s ease, color .3s ease, box-shadow .3s ease;
-    white-space: nowrap;
+    white-space: nowrap; touch-action: manipulation; -webkit-tap-highlight-color: transparent;
   }
+  /* press feedback for touch (no hover on mobile) */
+  .btn:active { transform: scale(0.97); }
   .btn-solid { background: var(--lime); color: var(--ink); }
   .btn-solid:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(212,255,63,0.28); }
   .btn-line { background: transparent; color: var(--paper); border-color: var(--line); }
@@ -133,10 +155,10 @@
   .btn-sm { padding: 10px 18px; font-size: 13px; }
   .btn .arr { transition: transform .3s var(--ease); }
   .btn:hover .arr { transform: translate(3px,-3px); }
-  @media (max-width: 820px){ .nav .lnk { display:none; } }
+  @media (max-width: 768px){ .nav { gap: 0; } .nav .lnk { display:none; } }
 
   /* ── HERO ── */
-  .hero { position: relative; min-height: 100svh; display: flex; align-items: flex-end; overflow: hidden; }
+  .hero { position: relative; min-height: 100svh; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; }
   #gl { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; display: block; }
   /* network/perf fallback — when WebGL is skipped (slow net, low memory, reduced-motion, no GL) */
   .hero.no-gl { background:
@@ -152,7 +174,8 @@
   }
   .hero-inner { position: relative; z-index: 3; width: 100%; padding-bottom: 64px; }
   .hero-top {
-    position: absolute; top: 120px; left: 0; right: 0; z-index: 3;
+    position: relative; z-index: 3; width: 100%;
+    padding-top: 112px; padding-bottom: 24px;
     display: flex; justify-content: space-between; align-items: flex-start; gap: 24px;
   }
   .pill {
@@ -187,12 +210,30 @@
   }
   .hero-sub { max-width: 440px; font-size: 17px; color: var(--paper-dim); line-height: 1.55; }
   .hero-sub strong { color: var(--paper); font-weight: 600; }
-  .hero-ctas { display: flex; gap: 12px; align-items: center; }
-  @media (max-width: 720px){
-    .hero-top{ top: 92px; }
+  .hero-ctas { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  @media (max-width: 768px){
+    .hero-top{ padding-top: 88px; }
     .hero-meta{ display:none; }
-    .hero-foot{ flex-direction: column; align-items: flex-start; }
+    .hero-foot{ flex-direction: column; align-items: stretch; gap: 24px; margin-top: 28px; }
+    .hero-sub{ max-width: 60ch; }
+    .hero-ctas{ width: 100%; }
+    .hero-ctas .btn{ flex: 1 1 auto; }   /* equal, comfortable touch targets */
   }
+  @media (max-width: 480px){
+    .hero-ctas{ flex-direction: column; }  /* stack so each spans full width */
+  }
+
+  /* ── MARQUEE ── */
+  .marquee {
+    border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+    background: var(--lime); color: var(--ink); overflow: hidden; padding: 16px 0;
+  }
+  .marquee-track { display: flex; gap: 0; white-space: nowrap; width: max-content; will-change: transform; }
+  .marquee-track span {
+    font-family: var(--font-display); font-weight: 600; font-size: 26px; letter-spacing: -0.01em;
+    padding: 0 26px; display: inline-flex; align-items: center; gap: 26px;
+  }
+  .marquee-track span::after { content: "✦"; font-size: 16px; opacity: 0.6; }
 
   /* ── SECTION SCAFFOLD ── */
   section { position: relative; }
@@ -247,12 +288,12 @@
     padding: 5px 11px; border-radius: var(--r-pill); border: 1px solid var(--line-soft);
     background: rgba(255,255,255,0.02);
   }
-  @media (max-width: 820px){ .svc-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 768px){ .svc-grid { grid-template-columns: 1fr; } .svc { padding: 28px 22px; } }
 
   /* ── STATS ── */
   .stats { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
   .stats-grid { display: grid; grid-template-columns: repeat(4,1fr); }
-  .stat { padding: 64px 30px; border-right: 1px solid var(--line); }
+  .stat { padding: 56px 30px; border-right: 1px solid var(--line); }
   .stat:last-child { border-right: none; }
   .stat .num {
     font-family: var(--font-display); font-weight: 700; font-size: clamp(40px, 5.4vw, 76px);
@@ -261,8 +302,9 @@
   }
   .stat .num .u { color: var(--lime); }
   .stat .lab { margin-top: 14px; font-size: 13.5px; color: var(--paper-mute); line-height: 1.45; max-width: 22ch; }
-  @media (max-width: 820px){
+  @media (max-width: 768px){
     .stats-grid { grid-template-columns: repeat(2,1fr); }
+    .stat { padding: 40px 22px; }
     .stat:nth-child(2){ border-right:none; }
     .stat:nth-child(1),.stat:nth-child(2){ border-bottom:1px solid var(--line); }
   }
@@ -274,24 +316,33 @@
   .step .st-n { font-family: var(--font-mono); font-size: 12px; color: var(--lime); }
   .step h4 { font-family: var(--font-display); font-weight: 600; font-size: 21px; margin: 18px 0 10px; letter-spacing: -0.02em; }
   .step p { font-size: 14.5px; color: var(--paper-dim); line-height: 1.6; }
-  @media (max-width: 820px){ .steps { grid-template-columns: 1fr; } .step { border-right: none; border-bottom: 1px solid var(--line); } .step:last-child{ border-bottom:none; } }
+  @media (max-width: 768px){ .steps { grid-template-columns: 1fr; } .step { border-right: none; border-bottom: 1px solid var(--line); padding: 32px 22px; } .step:last-child{ border-bottom:none; } }
 
   /* ── TIMELINE ── */
   .tl { display: flex; flex-direction: column; }
   .tl-row {
-    display: grid; grid-template-columns: 130px 1fr auto; gap: 30px; align-items: center;
-    padding: 30px 4px; border-top: 1px solid var(--line); position: relative;
+    display: grid; grid-template-columns: 130px 1fr auto; gap: 30px; align-items: start;
+    padding: 32px 4px; border-top: 1px solid var(--line); position: relative;
     transition: padding-left .4s var(--ease), background .4s ease;
   }
   .tl-row:last-child { border-bottom: 1px solid var(--line); }
   .tl-row:hover { padding-left: 22px; background: rgba(255,255,255,0.015); }
   .tl-row:hover .tl-co { color: var(--lime); }
-  .tl-yr { font-family: var(--font-mono); font-size: 13px; color: var(--paper-mute); }
-  .tl-co { font-family: var(--font-display); font-weight: 600; font-size: clamp(22px,2.6vw,34px); letter-spacing: -0.02em; transition: color .3s ease; }
-  .tl-co .role { display: block; font-family: var(--font-sans); font-weight: 400; font-size: 14px; color: var(--paper-mute); letter-spacing: 0; margin-top: 4px; }
-  .tl-loc { font-family: var(--font-mono); font-size: 12px; color: var(--paper-mute); text-align: right; }
+  .tl-yr { font-family: var(--font-mono); font-size: 13px; color: var(--paper-mute); padding-top: 6px; }
+  .tl-co { font-family: var(--font-display); font-weight: 600; font-size: clamp(22px,2.6vw,34px); line-height: 1.05; letter-spacing: -0.02em; transition: color .3s ease; }
+  .tl-role { font-family: var(--font-sans); font-weight: 500; font-size: 14px; color: var(--paper-dim); letter-spacing: 0; margin-top: 8px; }
+  .tl-desc { list-style: none; margin: 16px 0 0; padding: 0; display: flex; flex-direction: column; gap: 9px; max-width: 64ch; }
+  .tl-desc li { position: relative; padding-left: 20px; font-size: 14.5px; line-height: 1.55; color: var(--paper-mute); }
+  .tl-desc li::before { content: "–"; position: absolute; left: 0; top: 0; color: var(--lime); }
+  .tl-loc { font-family: var(--font-mono); font-size: 12px; color: var(--paper-mute); text-align: right; padding-top: 7px; }
   .tl-row.now .tl-yr { color: var(--lime); }
-  @media (max-width: 720px){ .tl-row { grid-template-columns: 1fr; gap: 8px; } .tl-loc{ text-align:left; } }
+  @media (max-width: 768px){
+    .tl-row { grid-template-columns: 1fr; gap: 6px; padding: 26px 4px; }
+    .tl-row:hover { padding-left: 4px; }            /* no hover-shift on touch */
+    .tl-loc{ text-align:left; padding-top: 0; order: 3; }
+    .tl-yr{ padding-top: 0; }
+    .tl-desc { margin-top: 12px; }
+  }
 
   /* ── QUOTE ── */
   .quote { padding: 150px 0; text-align: center; }
@@ -323,11 +374,56 @@
 
   /* ── FOOTER ── */
   footer { border-top: 1px solid var(--line); padding: 34px 0; }
-  .ft-inner { display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; font-family: var(--font-mono); font-size: 12px; color: var(--paper-mute); }
+  .ft-inner { display: flex; justify-content: center; align-items: center; gap: 20px; flex-wrap: wrap; font-family: var(--font-mono); font-size: 12px; color: var(--paper-mute); }
   .ft-inner .dots { display: inline-flex; gap: 6px; }
   .ft-inner .dots i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
 
-  @media (max-width: 720px){ .wrap{ padding: 0 22px; } .pad{ padding: 90px 0; } }
+  /* ─────────────────────────────────────────────────────────────
+     RESPONSIVE — systematic breakpoints: 1440 (base) / 1024 / 768 / 480
+     Gutter + vertical rhythm scale down together via tokens.
+     ───────────────────────────────────────────────────────────── */
+  @media (max-width: 1024px){
+    :root{ --gutter: 32px; }
+    .pad{ padding: 104px 0; }
+    .manifesto{ padding: 120px 0 104px; }
+    .quote{ padding: 120px 0; }
+    .cta{ padding: 104px 0 88px; }
+    .sec-head{ margin-bottom: 44px; }
+  }
+  @media (max-width: 768px){
+    :root{ --gutter: 24px; }
+    .pad{ padding: 80px 0; }
+    .manifesto{ padding: 88px 0 72px; }
+    .quote{ padding: 88px 0; }
+    .cta{ padding: 80px 0 64px; }
+    .sec-head{ margin-bottom: 36px; }
+    .cta-row{ flex-direction: column; align-items: stretch; }
+    .cta-row .btn{ width: 100%; }
+    .cta p{ font-size: 16px; }
+    .contacts{ margin-top: 40px; gap: 18px 26px; }
+    .contacts a{ padding: 6px 2px; }       /* larger tap area for secondary links */
+    footer{ padding: 28px 0; }
+  }
+  @media (max-width: 480px){
+    :root{ --gutter: 18px; }
+    .pad{ padding: 64px 0; }
+    .manifesto{ padding: 72px 0 56px; }
+    .quote{ padding: 72px 0; }
+    .cta{ padding: 64px 0 56px; }
+    .stats-grid{ grid-template-columns: 1fr; }   /* one clean column on small phones */
+    .stat{ border-right: none; border-bottom: 1px solid var(--line); }
+    .stat:last-child{ border-bottom: none; }
+  }
+  /* short landscape phones — tighten hero header offset so content stays reachable */
+  @media (max-height: 480px) and (orientation: landscape){
+    .hero-top{ padding-top: 76px; padding-bottom: 16px; }
+    .hero-inner{ padding-bottom: 32px; }
+  }
+  /* coarse pointers (touch): disable hover-only motion that can stick on tap */
+  @media (hover: none){
+    .svc:hover{ transform: none; }
+    .tl-row:hover{ padding-left: 4px; background: transparent; }
+  }
 </style>
 </head>
 <body>
@@ -351,13 +447,7 @@
   <canvas id="gl"></canvas>
 
   <div class="hero-top wrap">
-    <span class="pill"><span class="live"></span> Available for AI projects · Q3 2026</span>
-    <div class="hero-meta">
-      <b>Product designer · AI-first</b><br>
-      Design &amp; development<br>
-      services + consulting<br>
-      Vienna · remote worldwide
-    </div>
+    <span class="pill"><span class="live"></span> Available for projects · Q3 2026</span>
   </div>
 
   <div class="hero-inner wrap">
@@ -377,7 +467,7 @@
     </div>
   </div>
 </section>
-     
+
 <!-- ── MANIFESTO ── -->
 <section class="manifesto wrap">
   <p class="big" id="manifesto-text">
@@ -481,27 +571,60 @@
   <div class="tl">
     <div class="tl-row now reveal">
       <div class="tl-yr">2023 — now</div>
-      <div class="tl-co">Pwned Labs<span class="role">Founding Designer · 0-to-1 product &amp; brand · Generative UX</span></div>
+      <div class="tl-mid">
+        <div class="tl-co">Pwned Labs</div>
+        <div class="tl-role">Founding Designer · 0-to-1 product &amp; brand · Generative UX</div>
+        <ul class="tl-desc">
+          <li>Joined as the first design hire and built product and brand from zero to one — defining the visual identity, voice, interaction patterns, and design language now used across +50 surfaces.</li>
+          <li>Set the design and brand direction the rest of the team works against — principles, patterns, and voice guidelines.</li>
+          <li>Partnered directly with the founder on product strategy — running rapid prototyping cycles, customer-facing surfaces, and the pricing → onboarding → in-product narrative.</li>
+        </ul>
+      </div>
       <div class="tl-loc">Dubai → Vienna</div>
     </div>
     <div class="tl-row reveal">
       <div class="tl-yr">2019 — 2023</div>
-      <div class="tl-co">INE<span class="role">UI lead · brand refresh that drove Black Hat globally</span></div>
+      <div class="tl-mid">
+        <div class="tl-co">INE</div>
+        <div class="tl-role">UX / UI Designer</div>
+        <ul class="tl-desc">
+          <li>UI for Marketing · Education · Events · SoMe.</li>
+          <li>Owned the visual brand refresh for Marketing events 2020/21 — partnered with marketing on launch assets that drove Black Hat globally.</li>
+          <li>Set design direction across product, engineering, and marketing — turned cross-functional alignment into shipped work, not just meetings.</li>
+        </ul>
+      </div>
       <div class="tl-loc">Raleigh, NC</div>
     </div>
     <div class="tl-row reveal">
       <div class="tl-yr">2018 — 2019</div>
-      <div class="tl-co">Independent consulting<span class="role">SaaS product design with founders, discovery → delivery</span></div>
+      <div class="tl-mid">
+        <div class="tl-co">UX/UI Consultant — Independent</div>
+        <ul class="tl-desc">
+          <li>Led UX strategy for a portfolio of Tech and SaaS clients — turning complex business challenges into shipped, user-centered products. Owned discovery through delivery, working directly with founders.</li>
+        </ul>
+      </div>
       <div class="tl-loc">Remote</div>
     </div>
     <div class="tl-row reveal">
       <div class="tl-yr">2015 — 2018</div>
-      <div class="tl-co">HACEMOS<span class="role">Visual identity, content systems &amp; brand strategy</span></div>
+      <div class="tl-mid">
+        <div class="tl-co">Hacemos</div>
+        <div class="tl-role">Social Media &amp; Brand Consultant</div>
+        <ul class="tl-desc">
+          <li>Designed and ran content/brand strategy across a network of 90 owned and client websites reaching 2.7M+ monthly users. Owned design, SEO positioning, and editorial direction.</li>
+        </ul>
+      </div>
       <div class="tl-loc">La Plata, AR</div>
     </div>
     <div class="tl-row reveal">
       <div class="tl-yr">2011 — 2015</div>
-      <div class="tl-co">NeetBlogs<span class="role">90 sites · 2.7M+ monthly users · design at scale</span></div>
+      <div class="tl-mid">
+        <div class="tl-co">NeetBlogs</div>
+        <div class="tl-role">Designer</div>
+        <ul class="tl-desc">
+          <li>Designer for a thematic blog network focused on values-driven communication — covered visual identity, web design, and content systems across the network.</li>
+        </ul>
+      </div>
       <div class="tl-loc">La Plata, AR</div>
     </div>
   </div>
@@ -510,8 +633,8 @@
 <!-- ── QUOTE ── -->
 <section class="quote wrap" id="about">
   <blockquote>
-    The most useful thing a founding designer can do is make the product feel <em>inevitable</em> — like it could never have looked any other way.
-    <cite>— Felipe Giaconia Stabile</cite>
+    You miss 100% of the shots you don't take. <em>— Wayne Gretzky</em>
+    <cite>— Michael Scott</cite>
   </blockquote>
 </section>
 
@@ -522,7 +645,7 @@
     <h2>Let's build<br>something <em>useful.</em></h2>
     <p>Open to AI-first product work, founding-design engagements, and consulting. Tell me what you're making.</p>
     <div class="cta-row">
-      <a href="mailto:felipeg400@gmail.com" class="btn btn-solid">felipeg400@gmail.com <span class="arr">↗</span></a>
+      <a href="mailto:felipeg400@gmail.com" class="btn btn-solid">Let's talk <span class="arr">↗</span></a>
       <a href="https://www.linkedin.com/in/felipegiaconiastabile/" target="_blank" rel="noopener" class="btn btn-line">LinkedIn <span class="arr">↗</span></a>
     </div>
     <div class="contacts">
@@ -536,7 +659,7 @@
 <!-- ── FOOTER ── -->
 <footer>
   <div class="wrap ft-inner">
-    <span>FELIPE GIACONIA STABILE © 2026</span>
+    <span>Felipe Giaconia Stabile © 2026</span>
   </div>
 </footer>
 
@@ -748,6 +871,15 @@ window.addEventListener('scroll', function () {
         opacity: 1, y: 0, duration: 0.9, ease: 'power3.out',
         scrollTrigger: { trigger: el, start: 'top 86%' }
       });
+    });
+  }
+
+  // ── marquee (skipped under reduced-motion) ──
+  const mq = document.getElementById('mq');
+  if (mq && !reduce) {
+    let mqX = gsap.to(mq, { xPercent: -50, repeat: -1, duration: 26, ease: 'none' });
+    ScrollTrigger.create({
+      onUpdate: (self) => { gsap.to(mqX, { timeScale: 1 + Math.min(3, Math.abs(self.getVelocity()) / 400), duration: 0.4 }); }
     });
   }
 
